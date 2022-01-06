@@ -4,13 +4,13 @@
 
 </div>
     
-### Olá, Sou Thiago Aciole <img align="right" alt="Pandas" height="200" width="200" src= https://media.giphy.com/media/geW9h29PySxS9USol8/giphy.gif />
+## Olá, Sou Thiago Aciole <img align="right" alt="Pandas" height="200" width="200" src= https://media.giphy.com/media/geW9h29PySxS9USol8/giphy.gif />
     
-  🔹 Sou Estudante Engenharia da Computação| IFPB💻📚
+   🔹 Sou Estudante Engenharia da Computação| IFPB💻📚
     
-  🔹 INTERN DREAM | IFOOD 🍟🔴
+   🔹 INTERN DREAM | IFOOD 🍟🔴
     
-  🔹 19 Anos
+   🔹 19 Anos
 
 ### Essas São Minhas Redes Sociais
     
