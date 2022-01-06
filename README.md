@@ -1,10 +1,11 @@
 <div align="center">
 
+
 [![Typing SVG](https://readme-typing-svg.herokuapp.com?color=%2336BCF7&center=true&vCenter=true&lines=<SEJA+BEM+VINDO>)](https://git.io/typing-svg)
 
 </div>
     
-## Olá, Sou Thiago Aciole <img align="right" alt="Pandas" height="200" width="200" src= https://media.giphy.com/media/ttjY8rRdN0LwYFrhT3/giphy.gif />
+## Olá, Sou Thiago Aciole <img align="right" alt="Rafa-pic" height="200" style="border-radius:60px;" src=https://media.giphy.com/media/ttjY8rRdN0LwYFrhT3/giphy.gif>
     
    🔹 Sou Estudante Engenharia da Computação| IFPB💻📚
     
