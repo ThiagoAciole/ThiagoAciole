@@ -7,11 +7,9 @@
     
 ## Olá, Sou Thiago Aciole <img align="right" alt="Rafa-pic" height="200" style="border-radius:60px;" src=https://media.giphy.com/media/ttjY8rRdN0LwYFrhT3/giphy.gif>
     
-   🔹 Sou Estudante Engenharia da Computação| IFPB💻📚
-    
-   🔹 INTERN DREAM | IFOOD 🍟🔴
-    
-   🔹 19 Anos
+    • 🌵083 | 19y
+    • 🍟 UI & UX Designer & Developer |@ifoodbrasil ❣️
+    • 📚Engenharia da Computação | IFPB💻
 
 ### Essas São Minhas Redes Sociais
     
