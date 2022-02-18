@@ -7,11 +7,14 @@
     
 ## Olá, Sou Thiago Aciole <img align="right" alt="Rafa-pic" height="200" style="border-radius:60px;" src=https://media.giphy.com/media/ttjY8rRdN0LwYFrhT3/giphy.gif>
     
-    • 🌵083 | 19y
-    • 🍟 UI & UX Designer & Developer |@ifoodbrasil ❣️
-    • 📚Engenharia da Computação | IFPB💻
+   • 🌵083 | 19y
+    
+   • 🍟 UI & UX Designer & Developerㅤ<img  height="30" src=https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/IFood_logo.svg/1200px-IFood_logo.svg.png> 
+    
+   • 📚Engenharia da Computação | IFPB💻
 
 ### Essas São Minhas Redes Sociais
+    
     
 [![INSTAGRAM](https://img.shields.io/badge/Instagram-E4405F?style=for-the-badge&logo=instagram&logoColor=white
 )](https://www.instagram.com/thiago.aciole/)
