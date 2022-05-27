@@ -3,7 +3,9 @@
 [![Typing SVG](https://readme-typing-svg.herokuapp.com?color=%2336BCF7&center=true&vCenter=true&lines=<SEJA+BEM+VINDO>)](https://git.io/typing-svg)
 
 </div>
+   
 ### Olá, Sou Thiago Aciole 
+   
    • 🌵083 | 19y
     
    • 🍟 UI & UX Designer & Developerㅤ<img  height="30" src=https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/IFood_logo.svg/1200px-IFood_logo.svg.png> 
