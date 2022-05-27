@@ -1,4 +1,4 @@
-<div align="left">
+<div align="center">
 
 [![Typing SVG](https://readme-typing-svg.herokuapp.com?color=%2336BCF7&center=true&vCenter=true&lines=<SEJA+BEM+VINDO>)](https://git.io/typing-svg)
 
