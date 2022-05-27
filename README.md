@@ -1,12 +1,9 @@
-<div align="center">
-
+<div align="left">
 
 [![Typing SVG](https://readme-typing-svg.herokuapp.com?color=%2336BCF7&center=true&vCenter=true&lines=<SEJA+BEM+VINDO>)](https://git.io/typing-svg)
 
 </div>
-    
-## Olá, Sou Thiago Aciole <img align="right" alt="Rafa-pic" height="200" style="border-radius:60px;" src=https://media.giphy.com/media/ttjY8rRdN0LwYFrhT3/giphy.gif>
-    
+### Olá, Sou Thiago Aciole 
    • 🌵083 | 19y
     
    • 🍟 UI & UX Designer & Developerㅤ<img  height="30" src=https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/IFood_logo.svg/1200px-IFood_logo.svg.png> 
