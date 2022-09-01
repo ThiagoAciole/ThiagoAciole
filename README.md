@@ -8,7 +8,7 @@
    
    • 🌵083 | 19y
     
-   • 🍟 UI & UX Designer & Developerㅤ<img  height="30" src=https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/IFood_logo.svg/1200px-IFood_logo.svg.png> 
+   • 🍟 UI & UX Designer<img  height="30" src=https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/IFood_logo.svg/1200px-IFood_logo.svg.png> 
     
    • 📚Engenharia da Computação | IFPB💻
 
