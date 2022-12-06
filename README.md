@@ -2,7 +2,7 @@
 <img height="70"  src="https://pt.wizcase.com/wp-content/uploads/2022/03/GitHub-Logo.png"/>
 </div>
 <div align="center" >
-<img  width="700"src="https://images2.imgbox.com/19/a5/4umQaWWr_o.png" alt="image host"/>
+<img  width="500"src="https://images2.imgbox.com/19/a5/4umQaWWr_o.png" alt="image host"/>
    <br>
     <br>
 </div>
