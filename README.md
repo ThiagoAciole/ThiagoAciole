@@ -17,7 +17,7 @@
 ![about](https://img.shields.io/badge/-Quem%20Sou%20Eu%3F-red
 )
 
-> Sou Thiago Aciole, tenho 20 anos de idade, iniciei no mundo da tecnologia muito jovem, como voluntario num projeto de inclusão digital chamado "Inclus.com", desde então, venho navegado em diversas áreas dentro da T.I. Hoje sou estudante de Engenharia da Computação é Desenvolvedor Front-end e Designer UX/UI, trabalhando como Front-end na maior FoodTech do Brasil ![about](https://img.shields.io/badge/-iFood-red
+> Sou Thiago Aciole, tenho 20 anos de idade, iniciei no mundo da tecnologia muito jovem, como voluntario num projeto de inclusão digital chamado "Inclus.com", desde então, venho navegado em diversas áreas dentro da T.I. Hoje sou estudante de Engenharia da Computação é Desenvolvedor Front-end e Designer UX/UI, trabalhando como Front-end na maior FoodTech do Brasil ![about](https://img.shields.io/badge/-iFood-red?logo=iFood
 )
 
   
@@ -30,7 +30,7 @@
 [![LINKEDIN](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)
 ](https://www.linkedin.com/in/thiago-aciole-7a614916a/)
 
- <br>
+
  
   # 🚀 💻Tecnologias & Ferramentas
   
@@ -88,7 +88,7 @@
 
 <div align="center">
   
-
+ <br>
     
   <a href="https://github.com/ThiagoAciole">
   <img height="140em" src="https://github-readme-stats.vercel.app/api?username=ThiagoAciole&show_icons=true&theme=tokyonight&include_all_commits=true&count_private=true"/>
