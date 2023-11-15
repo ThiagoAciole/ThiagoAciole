@@ -4,7 +4,7 @@
 > Tenho 21 anos de idade, apaixonado por tecnologia e design. Comecei na T.I aos 12 como voluntário no projeto de inclusão digital "Inclus.com". Tenho experiência em design gráfico, manutenção de computadores e robótica educacional. Atualmente, sou estudante de Engenharia da Computação, desenvolvedor Front-end e Designer UX/UI no  ![about](https://img.shields.io/badge/-iFood-red?logo=iFood
 )
 >
- <a href="https://www.linkedin.com/in/thiago-aciole/" target="_blank" rel="noreferrer"> Visite Meu Site</a>
+ <a href="https://thiagoaciole.com.br/" target="_blank" rel="noreferrer"> Visite Meu Site</a>
 
 <h3>🚀 💻Tecnologias & Ferramentas</h3>
   
