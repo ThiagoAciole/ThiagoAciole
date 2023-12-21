@@ -3,8 +3,7 @@
 
 <img src="https://img.shields.io/static/v1?label=&message=Developer Front-end&color=red&style=for-the-badge&logo=iFood" alt="ilustração do nome">
 
-> Hi, I'm a 21 year old with a deep passion for technology and design. My journey in the world of Information Technology began at the age of 12, when I volunteered for the inclusive digital project 'Inclus.com'. Over the years, I have gained valuable experience in graphic design, computer maintenance, and educational robotics. Currently, I am a Computer Engineering student, specializing as a Front-end developer, and actively working as a Front-end developer. My diverse skills and dedication reflect my commitment to the dynamic and ever-evolving field of technology." 
-)
+> Hi, I'm 21 years old, and I'm passionate about technology and design. I work as a Front-end developer at @iFood and I'm currently pursuing a degree in Computer Engineering. 
 >
 <a href="https://thiagoaciole.com.br/" target="_blank" rel="noreferrer"> Visit my Website</a>
 <hr>
