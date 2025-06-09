@@ -1,7 +1,6 @@
 
 ## 👋 Hello, I'm Thiago
 
-<img src="https://img.shields.io/static/v1?label=&message=Developer Front-end&color=red&style=for-the-badge&logo=iFood" alt="ilustração do nome">
 
 > Hi, I'm 21 years old, and I'm passionate about technology and design. I work as a Front-end developer at @iFood and I'm currently pursuing a degree in Computer Engineering. 
 >
