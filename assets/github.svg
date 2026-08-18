@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="170" viewBox="0 0 520 170" role="img" aria-labelledby="title desc">
+  <title id="title">GitHub Snapshot</title>
+  <desc id="desc">GitHub commits, repositories and contributed repositories</desc>
+
+  <style>
+    .card { fill: #0d1117; stroke: #30363d; }
+    .title { fill: #f0f6fc; font: 600 14px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+    .value { fill: #f0f6fc; font: 600 24px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+    .label { fill: #8b949e; font: 500 12px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+
+    @media (prefers-color-scheme: light) {
+      .card { fill: #ffffff; stroke: #d0d7de; }
+      .title, .value { fill: #1f2328; }
+      .label { fill: #656d76; }
+    }
+  </style>
+
+  <rect class="card" x="0.5" y="0.5" width="519" height="169" rx="12" />
+  <text class="title" x="24" y="32">GitHub</text>
+
+  <text class="value" x="24" y="92">—</text>
+  <text class="label" x="24" y="116">Commits</text>
+
+  <text class="value" x="196" y="92">—</text>
+  <text class="label" x="196" y="116">Repos</text>
+
+  <text class="value" x="352" y="92">—</text>
+  <text class="label" x="352" y="116">Contributed</text>
+</svg>
