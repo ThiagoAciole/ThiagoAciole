@@ -1,7 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="620" height="190" viewBox="0 0 620 190" role="img" aria-labelledby="title desc">
   <title id="title">GitHub activity</title>
   <desc id="desc">Commits, public repositories and repositories contributed to</desc>
-
   <style>
     .value { fill: #58a6ff; font: 700 30px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
     .center-value { fill: #f0f6fc; font: 700 25px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
@@ -10,7 +9,6 @@
     .divider { stroke: #8b949e; stroke-width: 1; opacity: .65; }
     .ring { fill: none; stroke: #2f81f7; stroke-width: 5; }
     .dot { fill: #2f81f7; }
-
     @media (prefers-color-scheme: light) {
       .center-value, .label { fill: #1f2328; }
       .meta { fill: #656d76; }
@@ -20,21 +18,17 @@
       .dot { fill: #0969da; }
     }
   </style>
-
   <line class="divider" x1="205" y1="28" x2="205" y2="164" />
   <line class="divider" x1="415" y1="28" x2="415" y2="164" />
-
-  <text class="value" x="103" y="78" text-anchor="middle">—</text>
+  <text class="value" x="103" y="78" text-anchor="middle">304</text>
   <text class="label" x="103" y="111" text-anchor="middle">Commits</text>
   <text class="meta" x="103" y="139" text-anchor="middle">Last 12 months</text>
-
   <circle class="ring" cx="310" cy="82" r="43" />
   <circle class="dot" cx="310" cy="38" r="5" />
-  <text class="center-value" x="310" y="91" text-anchor="middle">—</text>
+  <text class="center-value" x="310" y="91" text-anchor="middle">37</text>
   <text class="label" x="310" y="139" text-anchor="middle">Repositories</text>
   <text class="meta" x="310" y="161" text-anchor="middle">Public</text>
-
-  <text class="value" x="517" y="78" text-anchor="middle">—</text>
+  <text class="value" x="517" y="78" text-anchor="middle">21</text>
   <text class="label" x="517" y="111" text-anchor="middle">Contributed</text>
   <text class="meta" x="517" y="139" text-anchor="middle">Last 12 months</text>
 </svg>
