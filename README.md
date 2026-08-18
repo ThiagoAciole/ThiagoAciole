@@ -14,10 +14,12 @@ I enjoy exploring ideas, understanding problems, learning how things work, and c
 
 <br />
 
-<img src="./assets/github.svg" width="620" alt="GitHub activity" />
+[![GitHub Streak](https://github-readme-streak-stats.herokuapp.com/?user=ThiagoAciole&theme=github-dark-blue&hide_border=true&background=0d1117)](https://git.io/streak-stats)
+
 
 <br />
 
 *Ideas first. Technology follows.*
 
 </div>
+<div align="center">
