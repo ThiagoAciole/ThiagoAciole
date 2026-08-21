@@ -20,7 +20,7 @@
   </style>
   <line class="divider" x1="205" y1="28" x2="205" y2="164" />
   <line class="divider" x1="415" y1="28" x2="415" y2="164" />
-  <text class="value" x="103" y="78" text-anchor="middle">310</text>
+  <text class="value" x="103" y="78" text-anchor="middle">312</text>
   <text class="label" x="103" y="111" text-anchor="middle">Commits</text>
   <text class="meta" x="103" y="139" text-anchor="middle">Last 12 months</text>
   <circle class="ring" cx="310" cy="82" r="43" />
