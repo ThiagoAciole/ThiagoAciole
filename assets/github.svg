@@ -25,7 +25,7 @@
   <text class="meta" x="103" y="139" text-anchor="middle">Last 12 months</text>
   <circle class="ring" cx="310" cy="82" r="43" />
   <circle class="dot" cx="310" cy="38" r="5" />
-  <text class="center-value" x="310" y="91" text-anchor="middle">41</text>
+  <text class="center-value" x="310" y="91" text-anchor="middle">42</text>
   <text class="label" x="310" y="139" text-anchor="middle">Repositories</text>
   <text class="meta" x="310" y="161" text-anchor="middle">Public</text>
   <text class="value" x="517" y="78" text-anchor="middle">25</text>
