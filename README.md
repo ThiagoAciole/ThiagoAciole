@@ -14,12 +14,13 @@ I enjoy exploring ideas, understanding problems, learning how things work, and c
 
 <br />
 
-[![GitHub Streak](https://github-readme-streak-stats.herokuapp.com/?user=ThiagoAciole&theme=github-dark-blue&hide_border=true&background=0d1117)](https://git.io/streak-stats)
-
+<picture>
+  <source media="(max-width: 720px)" srcset="./assets/contributions-mobile.svg" />
+  <img src="./assets/contributions.svg" alt="Aciole Contributions — GitHub contribution activity over the last 365 days" width="100%" />
+</picture>
 
 <br />
 
 *Ideas first. Technology follows.*
 
 </div>
-<div align="center">
