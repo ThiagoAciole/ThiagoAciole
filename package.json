@@ -1,0 +1,12 @@
+{
+  "name": "aciole-contributions",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {"node": ">=22.6.0"},
+  "scripts": {
+    "generate": "node --experimental-strip-types scripts/generate.ts",
+    "preview": "node --experimental-strip-types scripts/generate.ts --demo",
+    "test": "node --experimental-strip-types --test tests/*.test.ts"
+  }
+}
