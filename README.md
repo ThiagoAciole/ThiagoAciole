@@ -15,8 +15,8 @@ I enjoy exploring ideas, understanding problems, learning how things work, and c
 <br />
 
 <picture>
-  <source media="(max-width: 720px)" srcset="./assets/contributions-mobile.svg?v=20261119" />
-  <img src="./assets/contributions.svg?v=20261119" alt="Aciole Contributions — compact purple contribution dashboard with the most recent 16 weeks of activity" width="785" />
+  <source media="(max-width: 720px)" srcset="./assets/github-activity-mobile.svg" />
+  <img src="./assets/github-activity.svg" alt="GitHub contribution activity and profile statistics" width="785" />
 </picture>
 
 <br />
