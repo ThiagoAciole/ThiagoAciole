@@ -101,7 +101,7 @@ export function renderSvg(days: ContributionDay[], { variant, username, profile,
     ${footer(649, 268, 'Active day rate', `${metrics.activeRate}%`)}` : '';
   const demoMark = demo ? `<text x="${mobile ? 398 : 750}" y="${mobile ? 164 : height - 9}" font-size="9" font-weight="600" text-anchor="end" fill="#c393ff">DEMO DATA</text>` : '';
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" role="img" aria-labelledby="title desc">
-  <title id="title">Aciole Contributions${demo ? ' — demo' : ''}</title>
+  <title id="title">GitHub Activity${demo ? ' — demo' : ''}</title>
   <desc id="desc">${xml(username)}: ${metrics.total} contributions over the last 365 days, ${profile.publicRepos} public repositories, ${metrics.activeRate}% active day rate. Heatmap shows the most recent 16 calendar weeks.${demo ? ' Synthetic demo data, not actual account metrics.' : ''}</desc>
   ${styles}
   <rect class="surface" width="${width}" height="${height}" rx="${mobile ? 22 : 26}"/>
@@ -116,10 +116,10 @@ export function renderPlaceholder(variant: Variant): string {
   const mobile = variant === 'mobile';
   const width = mobile ? 420 : 785;
   const height = mobile ? 342 : variant === 'detailed' ? 307 : 226;
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" role="img" aria-label="Aciole Contributions awaiting data sync">
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" role="img" aria-label="GitHub Activity awaiting data sync">
     ${styles}
     <rect class="surface" width="${width}" height="${height}" rx="25"/>
-    <text class="primary" x="32" y="${mobile ? 66 : 100}" font-size="${mobile ? 19 : 24}" font-weight="650">Aciole Contributions</text>
+    
     <text class="muted" x="32" y="${mobile ? 98 : 134}" font-size="${mobile ? 13 : 15}">Waiting for first GitHub Actions sync</text>
     <text x="32" y="${mobile ? 130 : 165}" font-size="12" fill="#c393ff">Actions → Update contribution heatmap</text>
   </svg>`;
