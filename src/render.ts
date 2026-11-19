@@ -1,149 +1,126 @@
 import { calculateMetrics, intensity, intensityReference, type ContributionDay } from './metrics.ts';
+import type { GithubProfile } from './github.ts';
 
-type Variant = 'desktop' | 'mobile';
-type RenderOptions = { variant: Variant; username: string; demo?: boolean };
-const COLORS = ['#21262d', '#302051', '#583c8e', '#8957e5', '#c297ff'];
+type Variant = 'desktop' | 'mobile' | 'detailed';
+type RenderOptions = { variant: Variant; username: string; profile: GithubProfile; demo?: boolean };
+const COLORS = ['#302239', '#49306c', '#6f43ab', '#9458e8', '#c393ff'];
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const DAY_MS = 86_400_000;
-const xml = (value: string): string => value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+const WEEK_COUNT = 16;
+const xml = (v: string): string => v.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
 const fmt = (number: number): string => new Intl.NumberFormat('en-US').format(number);
 
-function styles(): string {
-  return `<style>
-    .heading{fill:#f0f6fc}.muted{fill:#8b949e}.accent{fill:#c297ff}
-    .card{fill:#161b22;fill-opacity:.74;stroke:#30363d;stroke-width:1}
-    .rule{stroke:#30363d;stroke-width:1}.inactive{fill:#21262d}
-    text{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif}
-    @media(prefers-color-scheme:light){
-      .heading{fill:#24292f}.muted{fill:#57606a}.accent{fill:#8250df}
-      .card{fill:#f6f8fa;fill-opacity:.85;stroke:#d0d7de}
-      .rule{stroke:#d0d7de}.inactive{fill:#eaeef2}
-    }
-  </style>`;
-}
-function metricCard(x: number, y: number, w: number, title: string, value: string, foot: string, mobile: boolean): string {
-  const h = mobile ? 93 : 91;
-  const pad = mobile ? 16 : 22;
-  return `<g>
-    <rect class="card" x="${x}" y="${y}" width="${w}" height="${h}" rx="13"/>
-    <text class="muted" x="${x + pad}" y="${y + 23}" font-size="${mobile ? 12 : 13}">${xml(title)}</text>
-    <text class="heading" x="${x + pad}" y="${y + 59}" font-size="${mobile ? 27 : 31}" font-weight="650">${xml(value)}</text>
-    <text class="muted" x="${x + pad}" y="${y + 78}" font-size="${mobile ? 10 : 11}">${xml(foot)}</text>
-  </g>`;
-}
-function monthsAndTiles(days: ContributionDay[], startX: number, y: number, step: number, cell: number, fontSize: number): string {
-  const first = new Date(`${days[0].date}T00:00:00Z`);
-  const startSunday = first.getTime() - first.getUTCDay() * DAY_MS;
-  const high = intensityReference(days);
-  const monthLabels: string[] = [];
-  let lastMonth = '';
-  for (const day of days) {
-    const currentMonth = day.date.slice(0, 7);
-    if (currentMonth === lastMonth) continue;
-    lastMonth = currentMonth;
-    const ms = Date.parse(`${day.date}T00:00:00Z`);
-    const week = Math.floor((ms - startSunday) / (7 * DAY_MS));
-    monthLabels.push(`<text class="muted" x="${(startX + week * step).toFixed(1)}" y="${y - 15}" font-size="${fontSize}">${MONTHS[Number(day.date.slice(5, 7)) - 1]}</text>`);
+const styles = `<style>
+  text{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif}
+  .surface{fill:#1b1b1d;fill-opacity:.94}
+  .primary{fill:#eceaf1}.muted{fill:#95919d}.accent{fill:#995ee9}
+  .rule{stroke:#39363d}.empty{fill:#32243d}
+  @media(prefers-color-scheme:light){
+    .surface{fill:#f4f1f8;fill-opacity:.92}
+    .primary{fill:#24202b}.muted{fill:#746f7e}.accent{fill:#7a39d1}
+    .rule{stroke:#dcd4e4}.empty{fill:#e7dff0}
   }
-  const tileTags = days.map(day => {
-    const ms = Date.parse(`${day.date}T00:00:00Z`);
-    const weekday = new Date(ms).getUTCDay();
-    const week = Math.floor((ms - startSunday) / (7 * DAY_MS));
-    const level = intensity(day.contributionCount, high);
-    const x = (startX + week * step).toFixed(1);
-    const yy = (y + weekday * step).toFixed(1);
-    const fill = level === 0 ? 'class="inactive"' : `fill="${COLORS[level]}"`;
-    const caption = `${day.date}: ${day.contributionCount} contributions`;
-    return `<rect x="${x}" y="${yy}" width="${cell}" height="${cell}" rx="${Math.max(2, cell * .25)}" ${fill}><title>${xml(caption)}</title></rect>`;
-  }).join('');
-  return monthLabels.join('') + '\n' + tileTags;
-}
-function legend(x: number, y: number, step: number, mobile: boolean): string {
-  const size = mobile ? 10 : 12;
-  const cubes = COLORS.map((color, index) => index === 0
-    ? `<rect class="inactive" x="${x + 30 + index * step}" y="${y - 10}" width="${size}" height="${size}" rx="3"/>`
-    : `<rect x="${x + 30 + index * step}" y="${y - 10}" width="${size}" height="${size}" rx="3" fill="${color}"/>`).join('');
-  return `<g><text class="muted" x="${x}" y="${y}" font-size="11">Less</text>${cubes}<text class="muted" x="${x + 38 + 5 * step}" y="${y}" font-size="11">More</text></g>`;
-}
-function formattedMonth(key: string | null): string {
-  return key ? `${MONTHS[Number(key.slice(5, 7)) - 1]} ${key.slice(0, 4)}` : '—';
-}
-function label(x: number, y: number, caption: string, value: string, mobile = false): string {
-  return `<text class="muted" x="${x}" y="${y}" font-size="${mobile ? 10.5 : 11.5}">${xml(caption)}</text>
-    <text class="heading" x="${x}" y="${y + (mobile ? 21 : 23)}" font-size="${mobile ? 14 : 16}" font-weight="600">${xml(value)}</text>`;
+</style>`;
+
+function icon(kind: 'github' | 'repo' | 'clock' | 'pin', x: number, y: number, size: number): string {
+  const paths = {
+    github: '<path d="M9 19c-5 1.5-5-2.5-7-3"/><path d="M15 22v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 19 4.77 5.07 5.07 0 0 0 18.91 1S17.73.65 15 2.48a13.38 13.38 0 0 0-7 0C5.27.65 4.09 1 4.09 1A5.07 5.07 0 0 0 4 4.77 5.44 5.44 0 0 0 2.5 8.51c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 8 18.13V22"/>',
+    repo: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/><path d="M8 7h8M8 11h6"/>',
+    clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/>',
+    pin: '<path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/>',
+  };
+  return `<g transform="translate(${x} ${y}) scale(${size / 24})" fill="none" stroke="#995ee9" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${paths[kind]}</g>`;
 }
 
-export function renderSvg(days: ContributionDay[], { variant, username, demo = false }: RenderOptions): string {
+export function joinedYears(createdAt: string, endDate: string): string {
+  const start = new Date(createdAt);
+  const end = new Date(`${endDate}T12:00:00Z`);
+  if (!Number.isFinite(start.getTime())) return 'Joined GitHub';
+  let years = end.getUTCFullYear() - start.getUTCFullYear();
+  if (end.getUTCMonth() < start.getUTCMonth() || (end.getUTCMonth() === start.getUTCMonth() && end.getUTCDate() < start.getUTCDate())) years--;
+  if (years >= 1) return `Joined GitHub ${years} year${years === 1 ? '' : 's'} ago`;
+  const months = Math.max(0, (end.getUTCFullYear() - start.getUTCFullYear()) * 12 + end.getUTCMonth() - start.getUTCMonth() - (end.getUTCDate() < start.getUTCDate() ? 1 : 0));
+  return months ? `Joined GitHub ${months} month${months === 1 ? '' : 's'} ago` : 'Joined GitHub recently';
+}
+
+function short(value: string, max = 31): string { return value.length > max ? `${value.slice(0, max - 1).trimEnd()}…` : value; }
+
+function heatmap(days: ContributionDay[], x: number, y: number, cell: number, step: number): string {
+  const end = Date.parse(`${days.at(-1)?.date}T00:00:00Z`);
+  const currentSunday = end - new Date(end).getUTCDay() * DAY_MS;
+  const firstSunday = currentSunday - (WEEK_COUNT - 1) * 7 * DAY_MS;
+  const byDate = new Map(days.map(day => [day.date, day.contributionCount]));
+  const high = intensityReference(days);
+  const tiles: string[] = [];
+  for (let week = 0; week < WEEK_COUNT; week++) {
+    for (let weekday = 0; weekday < 7; weekday++) {
+      const time = firstSunday + (week * 7 + weekday) * DAY_MS;
+      const date = new Date(time).toISOString().slice(0, 10);
+      const count = byDate.get(date);
+      const isFuture = time > end;
+      const level = intensity(count ?? 0, high);
+      const shade = level === 0 ? 'class="empty"' : `fill="${COLORS[level]}"`;
+      const cx = x + week * step;
+      const cy = y + weekday * step;
+      tiles.push(`<rect x="${cx}" y="${cy}" width="${cell}" height="${cell}" rx="${Math.round(cell * .28)}" ${shade}${isFuture ? ' opacity=".22"' : ''}><title>${xml(isFuture ? `${date}: future day` : `${date}: ${count ?? 0} contributions`)}</title></rect>`);
+    }
+  }
+  return tiles.join('\n');
+}
+
+function footer(x: number, y: number, caption: string, value: string): string {
+  return `<text class="muted" x="${x}" y="${y}" font-size="13">${xml(caption)}</text><text class="primary" x="${x}" y="${y + 24}" font-size="17" font-weight="650">${xml(value)}</text>`;
+}
+
+export function renderSvg(days: ContributionDay[], { variant, username, profile, demo = false }: RenderOptions): string {
+  if (!days.length) throw new Error('Cannot render an empty contribution calendar');
   const mobile = variant === 'mobile';
-  const width = mobile ? 620 : 1040;
-  const height = mobile ? 477 : 486;
+  const detailed = variant === 'detailed';
+  const width = mobile ? 420 : 785;
+  const height = mobile ? 342 : (detailed ? 307 : 226);
   const metrics = calculateMetrics(days);
-  const left = mobile ? 24 : 36;
-  const right = width - left;
-  const xGrid = mobile ? 74 : 105;
-  const chartY = mobile ? 261 : 272;
-  const step = mobile ? 9.5 : 16;
-  const cell = mobile ? 7.6 : 12.8;
-  const gridWidth = 53 * step;
-  const period = `${days[0].date} → ${days.at(-1)?.date}`;
-  const titleY = mobile ? 38 : 45;
-  const captionY = mobile ? 57 : 67;
-  const cardY = mobile ? 85 : 100;
-  const gap = mobile ? 10 : 16;
-  const cardW = (width - left * 2 - gap * 2) / 3;
-  const cards = [
-    ['Contributions', fmt(metrics.total), 'Last 365 days'],
-    ['Active days', String(metrics.activeDays), `${metrics.activeRate}% of the year`],
-    ['Longest streak', `${metrics.longestStreak} days`, 'Consecutive days'],
-  ].map(([heading, number, foot], index) => metricCard(left + index * (cardW + gap), cardY, cardW, heading, number, foot, mobile)).join('\n');
-  const sectionY = mobile ? 215 : 231;
-  const legendY = mobile ? 372 : 398;
-  const dividerY = mobile ? 394 : 420;
-  const footerY = mobile ? 423 : 450;
-  const footXs = mobile ? [24, 230, 433] : [36, 360, 694];
-  const summary = [
-    label(footXs[0], footerY, 'Most active month', formattedMonth(metrics.busiestMonth), mobile),
-    label(footXs[1], footerY, 'Most active weekday', metrics.busiestWeekday === null ? '—' : DAYS[metrics.busiestWeekday], mobile),
-    label(footXs[2], footerY, 'Active day rate', `${metrics.activeRate}%`, mobile),
-  ].join('\n');
-  const roundedPeriod = mobile ? 'PAST 365 DAYS' : period;
-  const monthSize = mobile ? 8.6 : 10.5;
-  const weekdays = [[1, 'Mon'], [3, 'Wed'], [5, 'Fri']].map(([day, name]) => `<text class="muted" x="${left}" y="${chartY + Number(day) * step + cell - 1}" font-size="${mobile ? 10 : 11}">${name}</text>`).join('\n');
-  const demoNotice = demo ? `<text x="${right}" y="${captionY}" font-size="11" font-weight="700" text-anchor="end" fill="#c297ff">DEMO DATA</text>` : '';
+  const leftX = mobile ? 23 : 31;
+  const rows = mobile ? [29, 66, 103, 140] : [43, 89, 135, 181];
+  const iconSize = mobile ? 21 : 25;
+  const textX = mobile ? 57 : 72;
+  const textSize = mobile ? 14 : 15;
+  const joined = joinedYears(profile.createdAt, days.at(-1)!.date);
+  const lines: { glyph: 'github'|'repo'|'clock'|'pin'; label: string }[] = [
+    { glyph: 'github', label: `${fmt(metrics.total)} Contributions on GitHub` },
+    { glyph: 'repo', label: `${fmt(profile.publicRepos)} Public Repos` },
+    { glyph: 'clock', label: joined },
+    { glyph: 'pin', label: profile.location?.trim() || 'Location not specified' },
+  ];
+  const info = lines.map(({ glyph, label }, i) => `${icon(glyph, leftX, rows[i] - 24, iconSize)}<text class="primary" x="${textX}" y="${rows[i]}" font-size="${textSize}">${xml(short(label, mobile ? 37 : 32))}</text>`).join('\n');
+  const map = mobile ? heatmap(days, 24, 176, 17, 23) : heatmap(days, 343, 25, 19.5, 24.8);
+  const footerY = 245;
+  const summary = detailed ? `<line class="rule" x1="24" y1="${footerY}" x2="761" y2="${footerY}" stroke-width="1"/>
+    ${footer(31, 268, 'Most active month', metrics.busiestMonth ? `${MONTHS[Number(metrics.busiestMonth.slice(5, 7)) - 1]} ${metrics.busiestMonth.slice(0,4)}` : '—')}
+    ${footer(340, 268, 'Most active weekday', metrics.busiestWeekday === null ? '—' : DAYS[metrics.busiestWeekday])}
+    ${footer(649, 268, 'Active day rate', `${metrics.activeRate}%`)}` : '';
+  const demoMark = demo ? `<text x="${mobile ? 398 : 750}" y="${mobile ? 164 : height - 9}" font-size="9" font-weight="600" text-anchor="end" fill="#c393ff">DEMO DATA</text>` : '';
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" role="img" aria-labelledby="title desc">
-  <title id="title">${xml(username)} — Contribution Activity${demo ? ' (demo)' : ''}</title>
-  <desc id="desc">Purple contribution heatmap: ${metrics.total} contributions, ${metrics.activeDays} active days, longest streak ${metrics.longestStreak} days, over the last 365 days.${demo ? ' Synthetic example data, not actual account statistics.' : ''}</desc>
-  ${styles()}
-  <g>
-    <circle cx="${left + 8}" cy="${titleY - 6}" r="6" fill="#8957e5"/>
-    <circle cx="${left + 8}" cy="${titleY - 6}" r="2.6" fill="#e9d8fd"/>
-    <text class="heading" x="${left + 24}" y="${titleY}" font-size="${mobile ? 21 : 23}" font-weight="650" letter-spacing="-.5">Contribution Activity</text>
-    <text class="muted" x="${left}" y="${captionY}" font-size="${mobile ? 11 : 12}">${xml(username)} / your year in code</text>
-    ${demoNotice}
-    ${cards}
-    <text class="heading" x="${left}" y="${sectionY}" font-size="${mobile ? 13 : 14}" font-weight="600">Activity overview</text>
-    <text class="muted" x="${right}" y="${sectionY}" font-size="${mobile ? 9.5 : 11.5}" text-anchor="end">${xml(roundedPeriod)}</text>
-    ${weekdays}
-    ${monthsAndTiles(days, xGrid, chartY, step, cell, monthSize)}
-    ${legend(right - (mobile ? 172 : 205), legendY, mobile ? 15 : 19, mobile)}
-    <line class="rule" x1="${left}" y1="${dividerY}" x2="${right}" y2="${dividerY}"/>
-    ${summary}
-  </g>
+  <title id="title">Aciole Contributions${demo ? ' — demo' : ''}</title>
+  <desc id="desc">${xml(username)}: ${metrics.total} contributions over the last 365 days, ${profile.publicRepos} public repositories, ${metrics.activeRate}% active day rate. Heatmap shows the most recent 16 calendar weeks.${demo ? ' Synthetic demo data, not actual account metrics.' : ''}</desc>
+  ${styles}
+  <rect class="surface" width="${width}" height="${height}" rx="${mobile ? 22 : 26}"/>
+  ${info}
+  ${map}
+  ${summary}
+  ${demoMark}
 </svg>`;
 }
 
 export function renderPlaceholder(variant: Variant): string {
   const mobile = variant === 'mobile';
-  const width = mobile ? 620 : 1040;
-  const height = mobile ? 477 : 486;
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" role="img" aria-labelledby="title desc">
-    <title id="title">Contribution Activity — awaiting first sync</title>
-    <desc id="desc">The heatmap will appear after the first successful GitHub Actions workflow.</desc>
-    ${styles()}
-    <text class="heading" x="35" y="57" font-family="Arial,sans-serif" font-size="24" font-weight="600">Contribution Activity</text>
-    <text class="muted" x="35" y="89" font-family="Arial,sans-serif" font-size="15">Awaiting first GitHub Actions sync.</text>
-    <rect class="card" x="35" y="115" width="${width - 70}" height="${height - 160}" rx="14"/>
-    <text class="accent" x="${width/2}" y="${height/2}" font-family="Arial,sans-serif" text-anchor="middle" font-size="${mobile ? 16 : 20}">Run “Update contribution heatmap” in Actions</text>
+  const width = mobile ? 420 : 785;
+  const height = mobile ? 342 : variant === 'detailed' ? 307 : 226;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" role="img" aria-label="Aciole Contributions awaiting data sync">
+    ${styles}
+    <rect class="surface" width="${width}" height="${height}" rx="25"/>
+    <text class="primary" x="32" y="${mobile ? 66 : 100}" font-size="${mobile ? 19 : 24}" font-weight="650">Aciole Contributions</text>
+    <text class="muted" x="32" y="${mobile ? 98 : 134}" font-size="${mobile ? 13 : 15}">Waiting for first GitHub Actions sync</text>
+    <text x="32" y="${mobile ? 130 : 165}" font-size="12" fill="#c393ff">Actions → Update contribution heatmap</text>
   </svg>`;
 }
