@@ -9,7 +9,6 @@ on:
       - 'package.json'
       - '.github/workflows/aciole-contributions.yml'
   schedule:
-    # Daily at 08:13 UTC (05:13 in Fortaleza, UTC-3)
     - cron: '13 8 * * *'
   workflow_dispatch:
 
@@ -25,27 +24,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          persist-credentials: true
-
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-
-      - name: Generate SVGs from GitHub GraphQL
+      - name: Verify monthly activity generator
+        run: npm test
+      - name: Generate lifetime SVGs from GitHub GraphQL
         env:
           GITHUB_TOKEN: ${{ github.token }}
           GITHUB_USERNAME: ThiagoAciole
         run: npm run generate
-
-      - name: Commit regenerated artwork
+      - name: Commit regenerated images
         run: |
-          git add assets/github-activity.svg assets/github-activity-mobile.svg assets/contributions-detailed.svg
+          git add assets/github-activity.svg assets/github-activity-mobile.svg
           if git diff --cached --quiet; then
             echo "No changes to publish"
             exit 0
           fi
           git -c user.name='github-actions[bot]' \
               -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
-              commit -m 'chore: refresh contribution heatmap'
+              commit -m 'chore: refresh lifetime GitHub activity'
           git push
