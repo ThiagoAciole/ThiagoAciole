@@ -32,14 +32,14 @@ await mkdir('assets', { recursive: true });
 for (const variant of ['desktop', 'mobile', 'detailed'] as const) {
   const file = demo
     ? variant === 'desktop' ? 'contributions-demo.svg' : `contributions-demo-${variant}.svg`
-    : variant === 'desktop' ? 'github-activity.svg' : `contributions-${variant}.svg`;
+    : variant === 'desktop' ? 'github-activity.svg' : variant === 'mobile' ? 'github-activity-mobile.svg' : 'contributions-detailed.svg';
   const filepath = join('assets', file);
   await writeFile(filepath, renderSvg(days, { variant, username, profile: activity.profile, demo }), 'utf8');
   console.log(`Generated ${filepath} (${demo ? 'DEMO' : 'GitHub API'} data)`);
 }
 
 if (process.argv.includes('--placeholder')) {
-  await writeFile(join('assets', 'contributions.svg'), renderPlaceholder('desktop'), 'utf8');
+  await writeFile(join('assets', 'github-activity.svg'), renderPlaceholder('desktop'), 'utf8');
   await writeFile(join('assets', 'github-activity-mobile.svg'), renderPlaceholder('mobile'), 'utf8');
   await writeFile(join('assets', 'contributions-detailed.svg'), renderPlaceholder('detailed'), 'utf8');
 }
