@@ -1,6 +1,13 @@
 name: Update contribution heatmap
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'scripts/**'
+      - 'package.json'
+      - '.github/workflows/aciole-contributions.yml'
   schedule:
     # Daily at 08:13 UTC (05:13 in Fortaleza, UTC-3)
     - cron: '13 8 * * *'
