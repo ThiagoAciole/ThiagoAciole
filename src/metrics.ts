@@ -75,3 +75,30 @@ export function intensityReference(days: ContributionDay[]): number {
   const positives = days.map(day => day.contributionCount).filter(Boolean).sort((a, b) => a - b);
   return positives.length ? positives[Math.floor((positives.length - 1) * .85)] : 1;
 }
+
+// Full account history, inclusive, with zeroes for dates not returned by the API.
+export function normalizeDaysBetween(days: ContributionDay[], startKey: string, endKey: string): ContributionDay[] {
+  const start = Date.parse(`${startKey}T00:00:00Z`);
+  const end = Date.parse(`${endKey}T00:00:00Z`);
+  if (!Number.isFinite(start) || !Number.isFinite(end) || start > end) throw new Error('Invalid date interval');
+  const seen = new Map<string, number>();
+  for (const day of days) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(day.date) || !Number.isInteger(day.contributionCount) || day.contributionCount < 0 || seen.has(day.date)) {
+      throw new Error(`Invalid or repeated contribution date ${day.date}`);
+    }
+    seen.set(day.date, day.contributionCount);
+  }
+  return Array.from({ length: Math.round((end - start) / ONE_DAY) + 1 }, (_, index) => {
+    const date = dateKey(new Date(start + index * ONE_DAY));
+    return { date, contributionCount: seen.get(date) ?? 0 };
+  });
+}
+
+export function monthlyContributionCounts(days: ContributionDay[]): Map<string, number> {
+  const counts = new Map<string, number>();
+  for (const day of days) {
+    const month = day.date.slice(0, 7);
+    counts.set(month, (counts.get(month) ?? 0) + day.contributionCount);
+  }
+  return counts;
+}
