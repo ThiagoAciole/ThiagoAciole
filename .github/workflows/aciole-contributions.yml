@@ -33,7 +33,7 @@ jobs:
 
       - name: Commit regenerated artwork
         run: |
-          git add assets/contributions.svg assets/contributions-mobile.svg
+          git add assets/contributions.svg assets/contributions-mobile.svg assets/contributions-detailed.svg
           if git diff --cached --quiet; then
             echo "No changes to publish"
             exit 0
