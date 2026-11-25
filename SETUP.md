@@ -1,67 +1,59 @@
-# Aciole Contributions — Compact Purple
+# GitHub Activity Card — Terminal Style
 
-Compact, self-hosted GitHub profile graphic rendered as SVG using TypeScript and GitHub GraphQL. No npm dependencies or third-party image services.
+Self-hosted GitHub profile card rendered as SVG with TypeScript and the GitHub GraphQL API. No npm dependencies or third-party image services.
 
-## Variants
+## Output
 
-- `assets/contributions.svg` — main **compact** desktop card (785 × 226), based on the second visual reference.
-- `assets/contributions-detailed.svg` — compact desktop card with the optional footer (785 × 307), based on the first visual reference.
-- `assets/contributions-mobile.svg` — stacked mobile layout (420 × 342).
+- `assets/github-activity.svg` — desktop card (785 px wide), shown in the README on wide viewports.
+- `assets/github-activity-mobile.svg` — stacked mobile layout (420 px wide), shown on viewports up to 520 px.
 
-The README uses `<picture>` to display the compact desktop graphic or mobile version according to viewport width. To show the optional footer instead, change the `<img>` source to `./assets/contributions-detailed.svg`.
-
-The SVG artwork has a transparent canvas with a rounded, translucent surface. The purple palette, texts, icons, and heatmap are native SVG. Light theme adaptation uses `prefers-color-scheme`.
+The README uses `<picture>` to switch between the two.
 
 ## Data and definitions
 
-All numbers and fields are fetched from the GitHub GraphQL API at generation time. `src/github.ts` retrieves `user.createdAt`, `user.location`, public owner repository `totalCount` and contribution calendar in one request. `src/metrics.ts` computes aggregations.
+`src/github.ts` fetches `user.createdAt`, `user.location` and the public owner repository count, then fetches the full contribution calendar in windows of at most 365 days (GitHub's limit per query). `src/metrics.ts` builds the all-time day series and the monthly totals.
 
-- **Contributions**: contributions counted over the previous 365 UTC days (including today).
-- **Public Repos**: publicly visible repositories owned by the user, excluding collaborator-only repositories.
-- **Joined GitHub**: complete elapsed years or months since account creation, calculated from the profile timestamp.
-- **Location**: the public GitHub profile `location` field, or `Location not specified` when empty.
-- **Heatmap**: last **16 calendar weeks** (up to 112 cells), with future days dimmed. It is intentionally a compact preview, not the complete 365-day calendar.
-- **Detailed footer**: busiest month and weekday by contribution count within the 365-day window, plus active days divided by 365.
+- **lifetime contributions**: sum of every day since the account was created.
+- **repos**: public repositories owned by the user.
+- **member since**: the year of the account's creation.
+- **Heatmap**: one tile per month, from the account's first year through the current year. Tile intensity is relative to the 85th-percentile month.
 
-GitHub visibility rules apply: the Action token can generally count public contributions; private contribution visibility may differ from the signed-in GitHub profile.
+GitHub visibility rules apply: the token can generally count public contributions, and private contribution visibility may differ from the signed-in profile.
 
-## Installation
+## Workflows
 
-Copy the files into your **profile repository** `ThiagoAciole/ThiagoAciole` or merge the prepared PR.
+- `.github/workflows/aciole-contributions.yml` runs `npm test`, then `npm run generate`, and commits the two activity SVGs. It runs on pushes to `src/`, `scripts/`, `package.json`, or the workflow itself, and daily at 08:13 UTC.
+- `.github/workflows/update-profile-stats.yml` writes `assets/github.svg`. That file is not referenced by the README.
 
-1. Open **Actions → Update contribution heatmap → Run workflow** on the default branch.
-2. Confirm that the workflow updates `assets/contributions.svg`, `assets/contributions-mobile.svg`, and `assets/contributions-detailed.svg`.
-3. Leave the default `README.md` `<picture>` block in place, or switch to the detailed SVG if preferred.
-
-The scheduled workflow runs each day at **08:13 UTC**. It requires repository Actions write permission for commits (`contents: write`), and branch protection must permit updating the generated assets. Do not commit personal access tokens.
+The workflows need `contents: write` permission. Do not commit personal access tokens.
 
 ## Local usage
 
-Node.js 24 recommended (minimum 22.6 for type stripping):
+Node.js 22.6 or newer (Node 24 recommended):
 
 ```bash
 npm test
-npm run preview
-# opens assets/contributions-demo.svg, -mobile.svg and -detailed.svg
+npm run preview   # writes assets/github-activity-demo*.svg using synthetic data
 
-# real data (keep the token in your environment, never in git)
-GITHUB_TOKEN=... GITHUB_USERNAME=ThiagoAciole npm run generate
+# real data: keep the token in your environment, never in git
+GITHUB_TOKEN="$(gh auth token)" GITHUB_USERNAME=ThiagoAciole npm run generate
 ```
 
-`npm run preview` uses deterministic **synthetic demo data** and labels its artwork DEMO. Production artwork fails explicitly on API errors, never substituting fake statistics. Original committed `contributions*.svg` are intentionally placeholders until the Action first succeeds.
+Production artwork fails on API errors and never substitutes fake statistics. `npm run generate -- --placeholder` writes a "waiting for sync" card instead.
 
 ## Files
 
 ```text
 .github/workflows/aciole-contributions.yml
+.github/workflows/update-profile-stats.yml
+scripts/generate.ts
 src/github.ts
 src/metrics.ts
 src/render.ts
-scripts/generate.ts
+tests/historical.test.ts
 tests/metrics.test.ts
 tests/render.test.ts
-assets/contributions.svg
-assets/contributions-mobile.svg
-assets/contributions-detailed.svg
+assets/github-activity.svg
+assets/github-activity-mobile.svg
 README.md
 ```

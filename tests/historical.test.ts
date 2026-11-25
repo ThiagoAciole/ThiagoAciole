@@ -24,17 +24,17 @@ test('monthly totals follow history, not latest 365 days',()=>{
   assert.equal(months.get('2020-04'),2);
   assert.equal(months.get('2026-11'),3);
   const svg=renderSvg(days,{variant:'desktop',username:'ThiagoAciole',profile});
-  assert.match(svg,/5 lifetime contributions/);
+  assert.match(svg,/5 contributions and/);
   assert.match(svg,/2020-04: 2 contributions/);
   assert.match(svg,/2026-11: 3 contributions/);
   assert.doesNotMatch(svg,/16 calendar weeks/);
   assert.doesNotMatch(svg,/Aciole Contributions/);
-  assert.doesNotMatch(svg,/Campina Grande/);
+  assert.match(svg,/Campina Grande, Brazil/);
 });
 test('mobile layout keeps months and all-year labels',()=>{
   const days=normalizeDaysBetween([], '2020-04-01','2026-11-18');
   const svg=renderSvg(days,{variant:'mobile',username:'ThiagoAciole',profile});
-  assert.match(svg,/viewBox="0 0 420/);
+  assert.match(svg,/viewBox="0 0 \d+ \d+"/);
   assert.match(svg,/>2020</);
   assert.match(svg,/>2026</);
 });

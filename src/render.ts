@@ -1,52 +1,107 @@
 import { calculateMetrics, intensity, monthlyContributionCounts, type ContributionDay } from './metrics.ts';
 import type { GithubProfile } from './github.ts';
 
-type Variant = 'desktop' | 'mobile' | 'detailed';
+type Variant = 'desktop' | 'mobile';
 type RenderOptions = { variant: Variant; username: string; profile: GithubProfile; demo?: boolean };
-const COLORS = ['#302239', '#49306c', '#6f43ab', '#9458e8', '#c393ff'];
+type Geometry = {
+  width: number;
+  height: number;
+  infoY: number[];   // baselines for the profile rows
+  divider: string;   // path separating the info panel from the heatmap
+  heatX: number;
+  heatY: number;
+  dx: number;
+  dy: number;
+  cell: number;
+};
+
 const MONTHS = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
+const BORDER_Y = 8.5; // y of the TUI box's top edge; the title sits on it
+const TITLE_CHAR = 7.4; // approximate monospace advance, pinned with textLength
 const xml = (s: string): string => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');
 const format = (value: number): string => new Intl.NumberFormat('en-US').format(value);
+
+// Transparent canvas: no background fill, so the card inherits the page behind it.
+// Colors follow the viewer's theme via prefers-color-scheme (GitHub does the same).
 const styles = `<style>
-  text{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif}
-  .surface{fill:#1b1b1d;fill-opacity:.94}
-  .primary{fill:#f0eef4}.muted{fill:#a39ca9}.accent{stroke:#a66bfa}
-  .empty{fill:#32243d}
-  @media(prefers-color-scheme:light){.surface{fill:#f4f1f8;fill-opacity:.92}.primary{fill:#24202b}.muted{fill:#746f7e}.empty{fill:#e7dff0}}
+  text{font-family:'JetBrains Mono','Fira Code',Consolas,'Liberation Mono',monospace}
+  .line{stroke:#30363d;fill:none}
+  .title{fill:#e6edf3}
+  .text{fill:#e6edf3}
+  .muted{fill:#8b949e}
+  .c0{fill:#161b22}.c1{fill:#0e4429}.c2{fill:#006d32}.c3{fill:#26a641}.c4{fill:#39d353}
+  @media (prefers-color-scheme: light){
+    .line{stroke:#d0d7de}
+    .title{fill:#1f2328}
+    .text{fill:#1f2328}
+    .muted{fill:#656d76}
+    .c0{fill:#ebedf0}.c1{fill:#9be9a8}.c2{fill:#40c463}.c3{fill:#30a14e}.c4{fill:#216e39}
+  }
 </style>`;
 
-function icon(kind: 'github' | 'repo' | 'clock', x: number, y: number, size: number): string {
-  const paths = {
-    github: '<path d="M9 19c-5 1.5-5-2.5-7-3"/><path d="M15 22v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 19 4.77 5.07 5.07 0 0 0 18.91 1S17.73.65 15 2.48a13.38 13.38 0 0 0-7 0C5.27.65 4.09 1 4.09 1A5.07 5.07 0 0 0 4 4.77 5.44 5.44 0 0 0 2.5 8.51c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 8 18.13V22"/>',
-    repo: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/><path d="M8 7h8M8 11h6"/>',
-    clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/>',
+// Single-line TUI box: square corners, with the title set into the top edge.
+function frame(width: number, height: number, title: string): string {
+  const titleX = 18;
+  const titleLength = title.length * TITLE_CHAR;
+  const gapEnd = titleX + titleLength + 6;
+  return `<path class="line" d="M0.5 ${BORDER_Y}H12M${gapEnd} ${BORDER_Y}H${width - 0.5}V${height - 0.5}H0.5V${BORDER_Y}"/>
+  <text class="title" x="${titleX}" y="${BORDER_Y + 4}" font-size="12" textLength="${titleLength}" lengthAdjust="spacingAndGlyphs">${xml(title)}</text>`;
+}
+
+// "Joined GitHub N years/months ago", measured against the last day of the data
+// so the output is deterministic for a given generation.
+export function joinedText(createdAt: string, referenceKey: string): string {
+  const start = new Date(createdAt);
+  const end = new Date(`${referenceKey}T00:00:00Z`);
+  let months = (end.getUTCFullYear() - start.getUTCFullYear()) * 12 + end.getUTCMonth() - start.getUTCMonth();
+  if (end.getUTCDate() < start.getUTCDate()) months--;
+  if (months >= 12) {
+    const years = Math.floor(months / 12);
+    return `Joined GitHub ${years} year${years === 1 ? '' : 's'} ago`;
+  }
+  return `Joined GitHub ${months} month${months === 1 ? '' : 's'} ago`;
+}
+
+function geometry(variant: Variant, years: number): Geometry {
+  if (variant === 'mobile') {
+    const heatX = 52, dx = 27, cell = 16, dy = 18.5, heatY = 146;
+    return {
+      width: heatX + 11 * dx + cell + 18,
+      height: Math.ceil(heatY + years * dy + 16),
+      infoY: [40, 62, 84, 106],
+      divider: 'M0.5 116H{W}',
+      heatX, heatY, dx, dy, cell,
+    };
+  }
+  const heatX = 336, dx = 26, cell = 17, dy = 19.5, heatY = 36;
+  return {
+    width: heatX + 11 * dx + cell + 18,
+    height: Math.ceil(Math.max(heatY + years * dy + 16, 150)),
+    infoY: [50, 76, 102, 128],
+    divider: 'M260 ' + BORDER_Y + 'V{H}',
+    heatX, heatY, dx, dy, cell,
   };
-  return `<g transform="translate(${x} ${y}) scale(${size/24})" fill="none" class="accent" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">${paths[kind]}</g>`;
 }
 
 // A tile represents a MONTH, not a day. Every account year stays visible.
-function monthlyHeatmap(days: ContributionDay[], { mobile, x, y }: { mobile: boolean; x: number; y: number }): string {
+function monthlyHeatmap(days: ContributionDay[], g: Geometry, mobile: boolean): string {
   const firstYear = Number(days[0].date.slice(0,4));
   const lastYear = Number(days.at(-1)!.date.slice(0,4));
   const counts = monthlyContributionCounts(days);
   const nonzero = [...counts.values()].filter(n => n > 0).sort((a,b) => a - b);
   const high = nonzero.length ? nonzero[Math.floor((nonzero.length - 1)*0.85)] : 1;
-  const dx = mobile ? 27 : 26;
-  const dy = mobile ? 18.5 : 19.5;
-  const cell = mobile ? 16 : 17;
-  const labels = MONTHS.map((m,i) => `<text class="muted" x="${x+i*dx+cell/2}" y="${y-12}" text-anchor="middle" font-size="${mobile?9:10}">${m}</text>`).join('');
+  const labels = MONTHS.map((m,i) => `<text class="muted" x="${g.heatX+i*g.dx+g.cell/2}" y="${g.heatY-10}" text-anchor="middle" font-size="${mobile?9:10}">${m}</text>`).join('');
   const tiles: string[] = [labels];
   for(let year=firstYear;year<=lastYear;year++) {
     const row=year-firstYear;
-    tiles.push(`<text class="muted" x="${x-13}" y="${y+row*dy+cell-4}" text-anchor="end" font-size="${mobile?10:11}">${year}</text>`);
+    const yy=g.heatY+row*g.dy;
+    tiles.push(`<text class="muted" x="${g.heatX-10}" y="${yy+g.cell-4}" text-anchor="end" font-size="${mobile?10:11}">${year}</text>`);
     for(let month=1;month<=12;month++) {
       const key=`${year}-${String(month).padStart(2,'0')}`;
       if(!counts.has(key)) continue; // Before joining or after today: genuinely out of range
       const count=counts.get(key)!;
       const level=intensity(count, high);
-      const shade=level===0?'class="empty"':`fill="${COLORS[level]}"`;
-      const xx=x+(month-1)*dx, yy=y+row*dy;
-      tiles.push(`<rect x="${xx}" y="${yy}" width="${cell}" height="${cell}" rx="5" ${shade}><title>${xml(key)}: ${count} contributions</title></rect>`);
+      tiles.push(`<rect class="c${level}" x="${g.heatX+(month-1)*g.dx}" y="${yy}" width="${g.cell}" height="${g.cell}" rx="2"><title>${xml(key)}: ${count} contributions</title></rect>`);
     }
   }
   return tiles.join('\n');
@@ -54,36 +109,35 @@ function monthlyHeatmap(days: ContributionDay[], { mobile, x, y }: { mobile: boo
 
 export function renderSvg(days: ContributionDay[], { variant, username, profile, demo=false }: RenderOptions): string {
   if (!days.length) throw new Error('Empty GitHub contribution history');
-  const mobile = variant==='mobile';
-  const years = Number(days.at(-1)!.date.slice(0,4))-Number(days[0].date.slice(0,4))+1;
-  const width = mobile ? 420 : 785;
-  const rowsBottom = (mobile ? 192 : 41) + years*(mobile?18.5:19.5);
-  const height = Math.ceil(mobile ? Math.max(328,rowsBottom+14) : Math.max(186,rowsBottom+8)) + (variant==='detailed'?34:0);
-  const total=calculateMetrics(days).total;
-  const since=profile.createdAt.slice(0,4);
-  const entries: Array<{ glyph:'github'|'repo'|'clock'; label:string }> = [
-    {glyph:'github',label:`${format(total)} lifetime contributions`},
-    {glyph:'repo',label:`${format(profile.publicRepos)} public repositories`},
-    {glyph:'clock',label:`On GitHub since ${since}`},
-  ];
-  const ys = mobile ? [39,78,117] : [49,101,153];
-  const info = entries.map((entry,i) => `${icon(entry.glyph, mobile?24:30, ys[i]-23, mobile?22:25)}<text class="primary" x="${mobile?63:71}" y="${ys[i]}" font-size="${mobile?16:17}" font-weight="${i===0?650:500}">${xml(entry.label)}</text>`).join('\n');
-  const map = monthlyHeatmap(days, { mobile, x:mobile?69:422, y:mobile?183:42 });
-  const period = `${since}–${days.at(-1)!.date.slice(0,4)}`;
-  const foot = mobile ? `<text class="muted" x="24" y="153" font-size="11">MONTHLY ACTIVITY · ${period}</text>` : '';
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" role="img" aria-labelledby="title desc">
+  const mobile = variant === 'mobile';
+  const firstYear = Number(days[0].date.slice(0,4));
+  const lastKey = days.at(-1)!.date;
+  const lastYear = Number(lastKey.slice(0,4));
+  const g = geometry(variant, lastYear - firstYear + 1);
+  const total = calculateMetrics(days).total;
+  const since = profile.createdAt.slice(0,4);
+  const period = `${since}–${lastYear}`;
+  const info = [
+    `${format(total)} Contributions on GitHub`,
+    `${format(profile.publicRepos)} Public Repos`,
+    joinedText(profile.createdAt, lastKey),
+    profile.location,
+  ].filter((line): line is string => Boolean(line));
+  const infoText = info.map((line, i) => `<text class="text" x="20" y="${g.infoY[i]}" font-size="${mobile?12:13}">${xml(line)}</text>`).join('\n  ');
+  const divider = g.divider.replace('{W}', String(g.width - 0.5)).replace('{H}', String(g.height - 0.5));
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${g.width} ${g.height}" width="${g.width}" height="${g.height}" role="img" aria-labelledby="title desc">
   <title id="title">${xml(username)} — GitHub activity</title>
-  <desc id="desc">${format(total)} lifetime contributions and ${profile.publicRepos} public repositories. Monthly contribution heatmap from ${period}.${demo?' Synthetic example values.':''}</desc>
+  <desc id="desc">${format(total)} contributions and ${profile.publicRepos} public repositories. Monthly contribution heatmap from ${period}.${demo?' Synthetic example values.':''}</desc>
   ${styles}
-  <rect class="surface" width="${width}" height="${height}" rx="23"/>
-  ${info}
-  ${map}
-  ${foot}
+  ${frame(g.width, g.height, `activity · ${period}`)}
+  <path class="line" d="${divider}"/>
+  ${infoText}
+  ${monthlyHeatmap(days, g, mobile)}
 </svg>`;
 }
 
 export function renderPlaceholder(variant: Variant): string {
-  const width=variant==='mobile'?420:785;
-  const height=variant==='mobile'?328:186;
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" role="img" aria-label="GitHub activity awaiting first sync">${styles}<rect class="surface" width="${width}" height="${height}" rx="23"/><text class="muted" x="30" y="${height/2}" font-size="15">Waiting for contribution history sync</text></svg>`;
+  const g = geometry(variant, 1);
+  const height = 189;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${g.width} ${height}" width="${g.width}" height="${height}" role="img" aria-label="GitHub activity awaiting first sync">${styles}${frame(g.width, height, 'activity')}<text class="muted" x="20" y="${BORDER_Y + 30}" font-size="13">waiting for first sync</text></svg>`;
 }
